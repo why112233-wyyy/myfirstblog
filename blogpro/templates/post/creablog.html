@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Create Your Blog{% endblock %}
+
+{% block content %}
+    <h1>Create a Blog</h1>
+    <p>Please create your blog filling out the following form:</p>
+    <form action="" method="post">
+        {{ user_form.as_p }}
+        {% csrf_token %}
+        <p><input type="submit" value="Save"></p>
+    </form>
+{% endblock %}

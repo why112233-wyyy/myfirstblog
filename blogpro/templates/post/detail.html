@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>
+    {{ post.title }}
+</h1>
+<p>
+    Published {{ post.publish }} by {{ post.author }}
+</p>
+
+{% if request.user.is_authenticated and request.user == post.author %}
+    <a href="{% url 'blog:blog_update' post.slug %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-pencil"></i> 编辑
+    </a>
+
+    <button type="button" class="btn btn-sm btn-outline-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteModal{{ post.slug }}">
+            删除
+    </button>
+
+    <div class="modal fade" id="deleteModal{{ post.slug }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">确认删除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>您确定要删除文章 <strong>"{{ post.title }}"</strong> 吗？</p>
+                    <p class="text-danger">此操作不可恢复！</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <form method="post" action="{% url 'blog:post_delete' post.slug %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">确认</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% if post.tags.count %}
+<p>
+    Tags: {{ post.tags.all|join:'，' }}
+</p>
+{% endif %}
+{{ post.body|linebreaks }}
+
+<h2>Similar Posts</h2>
+{% for post in post.tags.similar_objects %}
+    <p>
+        <a href="{{ post.get_url }}">{{ post.title }}</a>
+    </p>
+    {% empty %}
+        There are no similar posts yet.
+{% endfor %}
+
+<hr>
+{% with comments.count as total_comments %}
+    <h2>
+        {{ total_comments }} comment{{ total_comments|pluralize }}
+    </h2>
+{% endwith %}
+
+{% for comment in post.comments.all %}
+    <div>
+        <p>
+            Comment by {{ comment.commenter.username }} {{ comment.created }}
+        </p>
+        {{ comment.body|linebreaks }}
+    </div>
+    {% empty %}
+        <p>
+            There are no comments yet.
+        </p>
+{% endfor %}
+
+<h2>
+    Add a new comment
+</h2>
+<form action = "." method = "post">
+    {{ comment_form.as_p }}
+    {% csrf_token %}
+    <p>
+        <input type="submit" value="Add Coment">
+    </p>
+</form>
+
+
+
+{% endblock %}

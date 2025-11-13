@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+    {% for post in posts %}
+        <h2>
+            <a href="{{ post.get_url }}">
+                {{ post.title }}
+            </a>
+        </h2>
+        <p>
+            Published {{ post.publish }} by {{ post.author }}
+        </p>
+        {% if post.tags.count %}
+            <p>
+                Tags:
+                {% for tag in post.tags.all %}
+                    <a href="{% url "blog:post_list_by_tag" tag.slug %}">
+                    {{ tag.name }}
+                    </a>
+                {% if not forloop.last %},{% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
+        {{ post.body|truncatewords:30|linebreaks }}
+    {% endfor %}
+
+
+    <div>
+        <span>
+            {% if posts.has_previous %}
+                <a href="?page={{ posts.previous_page_number }}">Previous</a>
+            {% endif %}
+        </span>
+        <span>
+            Page {{posts.number}} of {{ posts.paginator.num_pages }}.
+        </span>
+        <span>
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}">Next</a>
+            {% endif %}
+        </span>
+    </div>
+
+    <hr>
+    <div>
+        <ul>
+            {% for tag in tag_list %}
+                <li>
+                    <a href="{% url "blog:post_list_by_tag" tag.slug %}">
+                    {{ tag.name }}
+                    </a>
+                    ({{ tag.taggit_taggeditem_items.count }})
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+{% endblock %}
